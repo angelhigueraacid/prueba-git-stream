@@ -34,4 +34,4 @@ is:
   formatting: {{ source.diff.files | isFormattingChange }}
   docs: {{ files | allDocs }}
   images: {{ files | allImages }}
-  oneLineComments : {{ source.diff.files | matchDiffLines(regex=r/^\/\/.*/, ignoreWhiteSpaces=true) | every }}
+  oneLineComments : {{ source.diff.files | matchDiffLines(regex=r/^\+(\/\/.*)?$/, ignoreWhiteSpaces=true) | every }}
