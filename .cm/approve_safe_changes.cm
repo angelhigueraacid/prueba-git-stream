@@ -1,0 +1,37 @@
+# -*- mode: yaml -*-
+
+manifest:
+  version: 1.0
+
+config:
+  ignore_repositories:
+    - .cm
+    - .github
+  ignore_files:
+    - '.github/**'
+
+automations:
+  safe_changes:
+    if:
+      - {{ is.formatting or is.docs or is.images or is.oneLineComments }}
+    # Apply a safe change label, approve the PR and explain why in a comment.
+    run:
+      - action: add-label@v1
+        args:
+          label: 'safe-change'
+      - action: approve@v1
+      - action: add-comment@v1
+        args:
+          comment: |
+            This PR is considered a safe change and has been automatically approved.
+      - action: merge@v1
+        args:
+          wait_for_all_checks: true
+          squash_on_merge: true
+
+# These custom expressions are used in the safe_changes automation
+is:
+  formatting: {{ source.diff.files | isFormattingChange }}
+  docs: {{ files | allDocs }}
+  images: {{ files | allImages }}
+  oneLineComments : {{ source.diff.files | matchDiffLines(regex=r/^\/\/.*/, ignoreWhiteSpaces=true) | every }}
