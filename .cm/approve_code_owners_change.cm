@@ -1,0 +1,32 @@
+# -*- mode: yaml -*-
+
+manifest:
+  version: 1.0
+
+# We are not ignoring github repo/files as codeowners file is inside github directory
+config:
+  ignore_repositories:
+    - .cm
+
+automations:
+  code_owners_change:
+    if:
+      - {{ is.codeowners  }}
+    # Apply a safe change label, approve the PR, explain why in a comment and merge the PR.
+    run:
+      - action: add-label@v1
+        args:
+          label: 'safe-change'
+      - action: approve@v1
+      - action: add-comment@v1
+        args:
+          comment: |
+            This PR is a code owners change and has been automatically approved.
+      - action: merge@v1
+        args:
+          wait_for_all_checks: true
+          squash_on_merge: true
+
+# These custom expressions are used in the safe_changes automation
+is:
+  codeowners : {{ files | match(term='.github/CODEOWNERS') | every }}
